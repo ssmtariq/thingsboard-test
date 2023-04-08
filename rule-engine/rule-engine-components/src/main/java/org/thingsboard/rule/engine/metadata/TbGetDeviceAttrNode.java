@@ -47,7 +47,11 @@ public class TbGetDeviceAttrNode extends TbAbstractGetAttributesNode<TbGetDevice
 
     @Override
     protected ListenableFuture<DeviceId> findEntityIdAsync(TbContext ctx, TbMsg msg) {
-        return EntitiesRelatedDeviceIdAsyncLoader.findDeviceAsync(ctx, msg.getOriginator(), config.getDeviceRelationsQuery());
+        long startTime = System.nanoTime();
+        ListenableFuture<DeviceId> deviceIdListenableFuture = EntitiesRelatedDeviceIdAsyncLoader.findDeviceAsync(ctx, msg.getOriginator(), config.getDeviceRelationsQuery());
+        long endTime = System.nanoTime();
+        System.out.println((endTime-startTime)+" ns");
+        return deviceIdListenableFuture;
     }
 
 }
