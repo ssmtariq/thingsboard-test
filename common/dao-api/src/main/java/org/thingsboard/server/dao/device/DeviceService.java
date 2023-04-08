@@ -45,6 +45,8 @@ public interface DeviceService {
 
     ListenableFuture<Device> findDeviceByIdAsync(TenantId tenantId, DeviceId deviceId);
 
+    ListenableFuture<DeviceId> findDeviceIdByIdAndByTypeAsync(TenantId tenantId, UUID deviceId, List<String> deviceTypes);
+
     Device findDeviceByTenantIdAndName(TenantId tenantId, String name);
 
     Device saveDevice(Device device, boolean doValidate);
@@ -102,6 +104,8 @@ public interface DeviceService {
     void unassignCustomerDevices(TenantId tenantId, CustomerId customerId);
 
     ListenableFuture<List<Device>> findDevicesByQuery(TenantId tenantId, DeviceSearchQuery query);
+
+    ListenableFuture<List<DeviceId>> findDevicesIdByQuery(TenantId tenantId, DeviceSearchQuery query);
 
     ListenableFuture<List<EntitySubtype>> findDeviceTypesByTenantId(TenantId tenantId);
 

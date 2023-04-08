@@ -269,9 +269,43 @@ public class JpaDeviceDao extends JpaAbstractSearchTextDao<DeviceEntity, Device>
         return DaoUtil.getData(deviceRepository.findByTenantIdAndId(tenantId.getId(), id));
     }
 
+//    @Override
+//    public ListenableFuture<Device> findDeviceByTenantIdAndIdAsync(TenantId tenantId, UUID id) {
+//        return service.submit(() -> DaoUtil.getData(deviceRepository.findByTenantIdAndId(tenantId.getId(), id)));
+//    }
+
+    public Device findByTenantIdAndIdHelper(UUID tid, UUID id) {
+//        long begin = System.nanoTime();
+//        Device testDevice = new Device();
+
+        DeviceEntity toReturn = deviceRepository.findByTenantIdAndId(tid, id);
+//        long end = System.nanoTime();
+//        System.out.println("Elapsed time " +  (end-begin));
+        return DaoUtil.getData(toReturn);
+        //return testDevice;
+    }
     @Override
     public ListenableFuture<Device> findDeviceByTenantIdAndIdAsync(TenantId tenantId, UUID id) {
-        return service.submit(() -> DaoUtil.getData(deviceRepository.findByTenantIdAndId(tenantId.getId(), id)));
+        return service.submit(() -> {
+//             long begin = System.nanoTime();
+//             DeviceEntity toReturn = deviceRepository.findByTenantIdAndId(tenantId.getId(), id);
+//             long end = System.nanoTime();
+//             System.out.println("Elapsed time " +  (end-begin));
+//             return DaoUtil.getData(toReturn);
+            return findByTenantIdAndIdHelper(tenantId.getId(), id);
+        });
+    }
+
+    @Override
+    public ListenableFuture<DeviceId> findDeviceIdByTenantIdAndIdAndTypesAsync(TenantId tenantId, UUID id, List<String> deviceTypes)
+    {
+        return (ListenableFuture<DeviceId>) service.submit(() -> {
+//            long begin = System.nanoTime();
+            DeviceId di = new DeviceId(deviceRepository.findIdByTenantIdAndIdAndTypes(tenantId.getId(), id, deviceTypes));
+//            long end = System.nanoTime();
+//            System.out.println("Elapsed time " +  (end-begin));
+            return di;
+        });
     }
 
     @Override

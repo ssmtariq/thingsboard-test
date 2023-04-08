@@ -252,4 +252,7 @@ public interface DeviceRepository extends JpaRepository<DeviceEntity, UUID>, Exp
     @Query("SELECT externalId FROM DeviceEntity WHERE id = :id")
     UUID getExternalIdById(@Param("id") UUID id);
 
+    @Query("SELECT d.id FROM DeviceEntity d WHERE d.tenantId = :tenantId " +
+            "AND d.id = :id AND d.type IN (:types)")
+    UUID findIdByTenantIdAndIdAndTypes(@Param("tenantId") UUID tenantId, @Param("id") UUID id, @Param("types")List<String> types);
 }

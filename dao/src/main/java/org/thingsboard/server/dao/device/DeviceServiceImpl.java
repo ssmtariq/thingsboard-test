@@ -145,6 +145,17 @@ public class DeviceServiceImpl extends AbstractCachedEntityService<DeviceCacheKe
     }
 
     @Override
+    public ListenableFuture<DeviceId> findDeviceIdByIdAndByTypeAsync(TenantId tenantId, UUID deviceId, List<String> deviceTypes) {
+        log.trace("Executing findDeviceById [{}]", deviceId);
+        validateId(deviceId, INCORRECT_DEVICE_ID + deviceId);
+        // if (TenantId.SYS_TENANT_ID.equals(tenantId)) {
+        //     return deviceDao.findIdByIdAsync(tenantId, deviceId.getId());
+        // } else {
+        return deviceDao.findDeviceIdByTenantIdAndIdAndTypesAsync(tenantId, deviceId, deviceTypes);
+        // }
+    }
+
+    @Override
     public Device findDeviceByTenantIdAndName(TenantId tenantId, String name) {
         log.trace("Executing findDeviceByTenantIdAndName [{}][{}]", tenantId, name);
         validateId(tenantId, INCORRECT_TENANT_ID + tenantId);
@@ -520,6 +531,33 @@ public class DeviceServiceImpl extends AbstractCachedEntityService<DeviceCacheKe
         }, MoreExecutors.directExecutor());
 
         return devices;
+    }
+
+    @Override
+    public ListenableFuture<List<DeviceId>> findDevicesIdByQuery(TenantId tenantId, DeviceSearchQuery query)
+    {
+        ListenableFuture<List<EntityRelation>> relations = relationService.findByQuery(tenantId, query.toEntitySearchQuery());
+        ListenableFuture<List<DeviceId>> devicesId = Futures.transformAsync(relations, r -> {
+            EntitySearchDirection direction = query.toEntitySearchQuery().getParameters().getDirection();
+            List<ListenableFuture<DeviceId>> futures = new ArrayList<>();
+            for (EntityRelation relation : r) {
+                EntityId entityId = direction == EntitySearchDirection.FROM ? relation.getTo() : relation.getFrom();
+                if (entityId.getEntityType() == EntityType.DEVICE) {
+                    futures.add(findDeviceIdByIdAndByTypeAsync(tenantId, entityId.getId(), query.getDeviceTypes()));
+                }
+            }
+            return Futures.successfulAsList(futures);
+        }, MoreExecutors.directExecutor());
+
+        // devicesId = Futures.transform(devicesId, new Function<>() {
+        //     @Nullable
+        //     @Override
+        //     public List<DeviceId> apply(@Nullable List<DeviceId> deviceList) {
+        //         return deviceList == null ? Collections.emptyList() : deviceList.stream().filter(device -> query.getDeviceTypes().contains(device.getType())).collect(Collectors.toList());
+        //     }
+        // }, MoreExecutors.directExecutor());
+
+        return devicesId;
     }
 
     @Override

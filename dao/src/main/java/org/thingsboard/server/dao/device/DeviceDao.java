@@ -240,6 +240,14 @@ public interface DeviceDao extends Dao<Device>, TenantEntityDao, ExportableEntit
      */
     ListenableFuture<Device> findDeviceByTenantIdAndIdAsync(TenantId tenantId, UUID id);
 
+    /**
+     * Find devices by tenantId and device id.
+     * @param tenantId tenantId the tenantId
+     * @param id the deviceId
+     * @return the deviceId
+     */
+    ListenableFuture<DeviceId> findDeviceIdByTenantIdAndIdAndTypesAsync(TenantId tenantId, UUID id, List<String> deviceTypes);
+
     Long countDevicesByDeviceProfileId(TenantId tenantId, UUID deviceProfileId);
 
     /**

@@ -37,10 +37,14 @@ public class EntitiesRelatedDeviceIdAsyncLoader {
         DeviceService deviceService = ctx.getDeviceService();
         DeviceSearchQuery query = buildQuery(originator, deviceRelationsQuery);
 
-        ListenableFuture<List<Device>> asyncDevices = deviceService.findDevicesByQuery(ctx.getTenantId(), query);
+//        ListenableFuture<List<Device>> asyncDevices = deviceService.findDevicesByQuery(ctx.getTenantId(), query);
+//        return Futures.transformAsync(asyncDevices, d -> CollectionUtils.isNotEmpty(d) ? Futures.immediateFuture(d.get(0).getId())
+//                : Futures.immediateFuture(null), MoreExecutors.directExecutor());
 
-        return Futures.transformAsync(asyncDevices, d -> CollectionUtils.isNotEmpty(d) ? Futures.immediateFuture(d.get(0).getId())
-                : Futures.immediateFuture(null), MoreExecutors.directExecutor());
+        /*Optimized Query*/
+        ListenableFuture<List<DeviceId>> asyncDevices = deviceService.findDevicesIdByQuery(ctx.getTenantId(), query);
+         return Futures.transformAsync(asyncDevices, d -> CollectionUtils.isNotEmpty(d) ? Futures.immediateFuture(d.get(0))
+                 : Futures.immediateFuture(null), MoreExecutors.directExecutor());
     }
 
     private static DeviceSearchQuery buildQuery(EntityId originator, DeviceRelationsQuery deviceRelationsQuery) {
